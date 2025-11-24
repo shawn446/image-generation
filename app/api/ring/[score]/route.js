@@ -1,27 +1,21 @@
 import fs from "fs";
 import path from "path";
 import satori from "satori";
-import { initWasm, Resvg } from "@resvg/resvg-wasm";
+import { Resvg } from "@resvg/resvg-js";
 
-export const runtime = "nodejs"; // must use node, NOT edge
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-// ----- LOAD FONT -----
+// ----- Load font -----
 const fontPath = path.join(process.cwd(), "app/fonts/Inter-Regular.ttf");
 const fontData = fs.readFileSync(fontPath);
 
-// ----- LOAD WASM -----
-const wasmPath = path.join(
-  process.cwd(),
-  "node_modules/@resvg/resvg-wasm/index_bg.wasm"
-);
-const wasmBytes = fs.readFileSync(wasmPath);
-await initWasm(wasmBytes);
-
-// ----- API ROUTE -----
+// ----- API Route -----
 export async function GET(req, { params }) {
-  const score = Number(params.score || 0);
+  const scoreRaw = params.score || "0";
+  const score = Number(scoreRaw.replace(".png", ""));
 
-  // Create SVG using Satori
+  // Create SVG via Satori
   const svg = await satori(
     {
       type: "div",
@@ -65,7 +59,7 @@ export async function GET(req, { params }) {
                     stroke: "#00ff88",
                     strokeWidth: 12,
                     fill: "none",
-                    strokeDasharray: `${score * 3.4} 999`,
+                    strokeDasharray: `${(score / 100) * 339} 339`,
                     transform: "rotate(-90 60 60)",
                     strokeLinecap: "round",
                   },
@@ -107,10 +101,9 @@ export async function GET(req, { params }) {
     fitTo: { mode: "width", value: 300 },
   });
 
-  const pngData = resvg.render();
-  const pngBuffer = pngData.asPng();
+  const png = resvg.render().asPng();
 
-  return new Response(pngBuffer, {
+  return new Response(png, {
     headers: {
       "Content-Type": "image/png",
       "Cache-Control": "public, max-age=31536000, immutable",
