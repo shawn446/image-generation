@@ -12,25 +12,43 @@ export async function GET(req) {
         style={{
           width: "300px",
           height: "300px",
-          borderRadius: "50%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontSize: 64,
           fontWeight: 700,
-          color: "#222",
-          background: `conic-gradient(
-            #ff3b30 ${score}%,
-            #e5e5e5 ${score}%
-          )`,
+          color: "#ffffff",
+
+          // ADD A DARK BACKGROUND SO THE IMAGE IS VISIBLE
+          backgroundColor: "#111",
+
+          borderRadius: "50%",
+          position: "relative",
         }}
       >
-        {score}
+        {/* Ring Overlay */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "300px",
+            height: "300px",
+            borderRadius: "50%",
+            background: `conic-gradient(
+              #00ff88 ${score}%, 
+              #333 ${score}%
+            )`,
+          }}
+        />
+
+        {/* Score Text */}
+        <span style={{ position: "relative", zIndex: 2 }}>{score}</span>
       </div>
     ),
     {
       width: 300,
-      height: 300
+      height: 300,
     }
   );
 }
