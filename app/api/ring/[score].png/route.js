@@ -2,6 +2,7 @@ import satori from "satori";
 import { Resvg } from "@resvg/resvg-wasm";
 
 export const runtime = "nodejs"; 
+export const dynamic = "force-dynamic";
 
 export async function GET(req, { params }) {
   const score = Number(params.score || 0);
