@@ -10,40 +10,44 @@ export async function GET(req) {
     (
       <div
         style={{
+          display: "flex",          // REQUIRED
+          alignItems: "center",
+          justifyContent: "center",
           position: "relative",
           width: "300px",
           height: "300px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           fontFamily: "sans-serif",
         }}
       >
-        <svg width="300" height="300" viewBox="0 0 120 120">
-          <circle 
-            cx="60" 
-            cy="60" 
-            r="54" 
-            stroke="#e5e5e5" 
-            strokeWidth="12" 
-            fill="none" 
-          />
-          <circle
-            cx="60"
-            cy="60"
-            r="54"
-            stroke="#00ff88"
-            strokeWidth="12"
-            fill="none"
-            strokeDasharray={`${(score / 100) * 339} 339`}
-            transform="rotate(-90 60 60)"
-            strokeLinecap="round"
-          />
-        </svg>
+        {/* WRAP SVG INSIDE A FLEX CONTAINER TOO */}
+        <div style={{ display: "flex" }}>
+          <svg width="300" height="300" viewBox="0 0 120 120">
+            <circle 
+              cx="60" 
+              cy="60" 
+              r="54" 
+              stroke="#e5e5e5" 
+              strokeWidth="12" 
+              fill="none" 
+            />
+            <circle
+              cx="60"
+              cy="60"
+              r="54"
+              stroke="#00ff88"
+              strokeWidth="12"
+              fill="none"
+              strokeDasharray={`${(score / 100) * 339} 339`}
+              transform="rotate(-90 60 60)"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
 
-        {/* OVERLAY TEXT (HTML, NOT SVG!) */}
+        {/* TEXT OVERLAY */}
         <div
           style={{
+            display: "flex",        // REQUIRED
             position: "absolute",
             top: "50%",
             left: "50%",
@@ -51,6 +55,8 @@ export async function GET(req) {
             fontSize: "64px",
             fontWeight: "700",
             color: "#111",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           {score}
