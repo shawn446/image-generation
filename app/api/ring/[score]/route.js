@@ -1,18 +1,27 @@
 import fs from "fs";
 import path from "path";
 import satori from "satori";
-import { Resvg } from "@resvg/resvg-wasm";
+import { initWasm, Resvg } from "@resvg/resvg-wasm";
 
-export const runtime = "nodejs"; // must be node, NOT edge
+export const runtime = "nodejs"; // must use node, NOT edge
 
-// Load font once at startup
+// ----- LOAD FONT -----
 const fontPath = path.join(process.cwd(), "app/fonts/Inter-Regular.ttf");
 const fontData = fs.readFileSync(fontPath);
 
+// ----- LOAD WASM -----
+const wasmPath = path.join(
+  process.cwd(),
+  "node_modules/@resvg/resvg-wasm/index_bg.wasm"
+);
+const wasmBytes = fs.readFileSync(wasmPath);
+await initWasm(wasmBytes);
+
+// ----- API ROUTE -----
 export async function GET(req, { params }) {
   const score = Number(params.score || 0);
 
-  // Build SVG with Satori
+  // Create SVG using Satori
   const svg = await satori(
     {
       type: "div",
@@ -25,8 +34,8 @@ export async function GET(req, { params }) {
           justifyContent: "center",
           alignItems: "center",
           position: "relative",
-          background: "#f5f5f5",
           fontFamily: "Inter",
+          background: "#fff",
         },
         children: [
           {
@@ -56,7 +65,7 @@ export async function GET(req, { params }) {
                     stroke: "#00ff88",
                     strokeWidth: 12,
                     fill: "none",
-                    strokeDasharray: `${(score / 100) * 339} 339`,
+                    strokeDasharray: `${score * 3.4} 999`,
                     transform: "rotate(-90 60 60)",
                     strokeLinecap: "round",
                   },
@@ -69,9 +78,9 @@ export async function GET(req, { params }) {
             props: {
               style: {
                 position: "absolute",
-                color: "#111",
-                fontSize: "64px",
-                fontWeight: "700",
+                color: "#000",
+                fontSize: 48,
+                fontWeight: "bold",
               },
               children: String(score),
             },
@@ -98,9 +107,10 @@ export async function GET(req, { params }) {
     fitTo: { mode: "width", value: 300 },
   });
 
-  const pngData = resvg.render().asPng();
+  const pngData = resvg.render();
+  const pngBuffer = pngData.asPng();
 
-  return new Response(pngData, {
+  return new Response(pngBuffer, {
     headers: {
       "Content-Type": "image/png",
       "Cache-Control": "public, max-age=31536000, immutable",
