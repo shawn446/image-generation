@@ -1,13 +1,11 @@
 import satori from "satori";
-import { Resvg } from "@resvg/resvg-js";
+import { Resvg } from "@resvg/resvg-wasm";
 
 export const runtime = "nodejs"; 
-// Node runtime required for resvg (edge doesn't support WASM execution well)
 
 export async function GET(req, { params }) {
   const score = Number(params.score || 0);
 
-  // Your ring component as JSX → converted to SVG string by Satori
   const svg = await satori(
     {
       type: "div",
@@ -80,7 +78,6 @@ export async function GET(req, { params }) {
     }
   );
 
-  // Convert SVG → PNG using Resvg
   const resvg = new Resvg(svg, {
     fitTo: {
       mode: "width",
