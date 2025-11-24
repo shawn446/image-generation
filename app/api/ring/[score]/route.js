@@ -2,13 +2,13 @@ import fs from "fs";
 import path from "path";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-wasm";
+import initWasm from "@resvg/resvg-wasm/init";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
 export const runtime = "nodejs";
-
 
 // Load WASM
 const wasmPath = path.join(process.cwd(), "public/resvg.wasm");
@@ -20,8 +20,8 @@ const fontData = fs.readFileSync(fontPath);
 
 export async function GET(req, { params }) {
   // strip ".png" if present
-const raw = params.score.replace(".png", "");
-const score = Number(raw) || 0;
+  const raw = params.score.replace(".png", "");
+  const score = Number(raw) || 0;
 
   // Generate SVG via Satori
   const svg = await satori(
@@ -101,10 +101,12 @@ const score = Number(raw) || 0;
     }
   );
 
+  // ✅ REQUIRED: Initialize WASM BEFORE rendering
+  await initWasm(wasmBinary);
+
   // Render to PNG
   const renderer = new Resvg(svg, {
     fitTo: { mode: "width", value: 300 },
-    wasmBinary,
   });
 
   const png = renderer.render().asPng();
