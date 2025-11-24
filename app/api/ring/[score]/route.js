@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 import satori from "satori";
-import { Resvg } from "@resvg/resvg-js";
+import { Resvg } from "@resvg/resvg-wasm";
+import { initWasm } from "@resvg/resvg-wasm";
+
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
