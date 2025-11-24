@@ -7,14 +7,13 @@
     "dev": "next dev",
     "start": "next start",
     "build": "next build"
-    
   },
   "dependencies": {
     "@vercel/og": "^0.6.8",
+    "@resvg/resvg-js": "^2.6.0",
+    "satori": "^0.10.0",
     "next": "14.2.4",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "satori": "^0.10.0",
-    "@resvg/resvg-wasm": "^2.4.0"
+    "react-dom": "18.2.0"
   }
 }
