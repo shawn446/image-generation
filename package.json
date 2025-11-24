@@ -7,6 +7,7 @@
     "dev": "next dev",
     "start": "next start",
     "build": "next build"
+    
   },
   "dependencies": {
     "@vercel/og": "^0.6.8",
