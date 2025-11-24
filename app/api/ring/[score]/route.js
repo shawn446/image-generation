@@ -1,25 +1,24 @@
 import fs from "fs";
 import path from "path";
 import satori from "satori";
-import { Resvg } from "@resvg/resvg-wasm";
+import { Resvg } from "@resvg/resvg-js";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 export const runtime = "nodejs";
 
-// Load WASM
-const wasmPath = path.join(process.cwd(), "public/resvg.wasm");
-const wasmBinary = fs.readFileSync(wasmPath);
-
-// Load font
+// Load font once at startup
 const fontPath = path.join(process.cwd(), "app/fonts/Inter-Regular.ttf");
 const fontData = fs.readFileSync(fontPath);
 
 export async function GET(req, { params }) {
-  const raw = params.score.replace(".png", "");
+  // score comes from /api/ring/[score]
+  // rewrite also lets /api/ring/80.png work → we strip ".png" just in case
+  const raw = String(params.score || "").replace(".png", "");
   const score = Number(raw) || 0;
 
+  // SVG layout using Satori
   const svg = await satori(
     {
       type: "div",
@@ -31,6 +30,7 @@ export async function GET(req, { params }) {
           justifyContent: "center",
           alignItems: "center",
           position: "relative",
+          background: "white",
         },
         children: [
           {
@@ -97,10 +97,9 @@ export async function GET(req, { params }) {
     }
   );
 
-  // Render PNG
+  // Render SVG → PNG with resvg-js (no wasmBinary, no init)
   const renderer = new Resvg(svg, {
     fitTo: { mode: "width", value: 300 },
-    wasmBinary,
   });
 
   const png = renderer.render().asPng();
