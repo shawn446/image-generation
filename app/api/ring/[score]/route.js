@@ -16,13 +16,10 @@ const wasmBinary = fs.readFileSync(wasmPath);
 const fontPath = path.join(process.cwd(), "app/fonts/Inter-Regular.ttf");
 const fontData = fs.readFileSync(fontPath);
 
-
 export async function GET(req, { params }) {
-  // strip ".png" if present
   const raw = params.score.replace(".png", "");
   const score = Number(raw) || 0;
 
-  // Generate SVG via Satori
   const svg = await satori(
     {
       type: "div",
@@ -100,12 +97,10 @@ export async function GET(req, { params }) {
     }
   );
 
-  // ✅ REQUIRED: Initialize WASM BEFORE rendering
-  await initWasm(wasmBinary);
-
-  // Render to PNG
+  // Render PNG
   const renderer = new Resvg(svg, {
     fitTo: { mode: "width", value: 300 },
+    wasmBinary,
   });
 
   const png = renderer.render().asPng();
