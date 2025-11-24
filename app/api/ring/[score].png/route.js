@@ -3,22 +3,21 @@ import path from "path";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-wasm";
 
-export const runtime = "nodejs";
+export const runtime = "nodejs"; // Required for WASM
 
-// Load WASM
+// Load WASM from /public/resvg.wasm
 const wasmPath = path.join(process.cwd(), "public/resvg.wasm");
-const wasmData = fs.readFileSync(wasmPath);
+const wasmBinary = fs.readFileSync(wasmPath);
 
 // Load font
 const fontPath = path.join(process.cwd(), "app/fonts/Inter-Regular.ttf");
 const fontData = fs.readFileSync(fontPath);
 
 export async function GET(req, { params }) {
-  // 🔥 IMPORTANT: remove ".png" from dynamic segment
-  const rawScore = params.score.replace(".png", "");
-  const score = Number(rawScore) || 0;
+  // Strip ".png" from folder param
+  const score = Number(params.score.replace(".png", "")) || 0;
 
-  // Create SVG ring using Satori
+  // SVG markup via Satori
   const svg = await satori(
     {
       type: "div",
@@ -30,7 +29,6 @@ export async function GET(req, { params }) {
           justifyContent: "center",
           alignItems: "center",
           position: "relative",
-          borderRadius: "50%",
         },
         children: [
           {
@@ -87,28 +85,3 @@ export async function GET(req, { params }) {
     {
       width: 300,
       height: 300,
-      fonts: [
-        {
-          name: "Inter",
-          data: fontData,
-          weight: 400,
-          style: "normal",
-        },
-      ],
-    }
-  );
-
-  // Convert to PNG
-  const resvg = new Resvg(svg, {
-    fitTo: { mode: "width", value: 300 },
-  });
-
-  const png = resvg.render().asPng();
-
-  return new Response(png, {
-    headers: {
-      "Content-Type": "image/png",
-      "Cache-Control": "public, max-age=31536000, immutable",
-    },
-  });
-}
