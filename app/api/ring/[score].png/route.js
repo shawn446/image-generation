@@ -3,7 +3,12 @@ import path from "path";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-wasm";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
 export const runtime = "nodejs";
+
 
 // Load WASM
 const wasmPath = path.join(process.cwd(), "public/resvg.wasm");
