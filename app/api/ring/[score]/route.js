@@ -6,7 +6,7 @@ import { Resvg } from "@resvg/resvg-wasm";
 export const runtime = "nodejs"; // must be node, NOT edge
 
 // Load font once at startup
-const fontPath = path.join(process.cwd(), "app/fonts/Inter-Variable.ttf");
+const fontPath = path.join(process.cwd(), "app/fonts/Inter-Regular.ttf");
 const fontData = fs.readFileSync(fontPath);
 
 export async function GET(req, { params }) {
