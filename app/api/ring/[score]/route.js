@@ -20,7 +20,7 @@ const fontData = fs.readFileSync(fontPath);
 
 export async function GET(req, { params }) {
   // strip ".png"
-  const raw = params.score.replace(".png", "");
+  const raw = params.score;
   const score = Number(raw) || 0;
 
   // Generate SVG via Satori
