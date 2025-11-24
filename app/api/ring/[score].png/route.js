@@ -3,9 +3,9 @@ import path from "path";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-wasm";
 
-export const runtime = "nodejs"; // Required for WASM
+export const runtime = "nodejs";
 
-// Load WASM from /public/resvg.wasm
+// Load WASM
 const wasmPath = path.join(process.cwd(), "public/resvg.wasm");
 const wasmBinary = fs.readFileSync(wasmPath);
 
@@ -14,10 +14,11 @@ const fontPath = path.join(process.cwd(), "app/fonts/Inter-Regular.ttf");
 const fontData = fs.readFileSync(fontPath);
 
 export async function GET(req, { params }) {
-  // Strip ".png" from folder param
-  const score = Number(params.score.replace(".png", "")) || 0;
+  // strip ".png"
+  const raw = params.score.replace(".png", "");
+  const score = Number(raw) || 0;
 
-  // SVG markup via Satori
+  // Generate SVG via Satori
   const svg = await satori(
     {
       type: "div",
@@ -85,3 +86,28 @@ export async function GET(req, { params }) {
     {
       width: 300,
       height: 300,
+      fonts: [
+        {
+          name: "Inter",
+          data: fontData,
+          weight: 400,
+        },
+      ],
+    }
+  );
+
+  // Render to PNG
+  const renderer = new Resvg(svg, {
+    fitTo: { mode: "width", value: 300 },
+    wasmBinary,
+  });
+
+  const png = renderer.render().asPng();
+
+  return new Response(png, {
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=31536000, immutable",
+    },
+  });
+}
