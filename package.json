@@ -1,0 +1,17 @@
+{
+  "name": "image-generation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "start": "next start",
+    "build": "next build"
+  },
+  "dependencies": {
+    "@vercel/og": "^0.6.2",
+    "next": "14.2.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
