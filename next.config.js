@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverActions: true
-  }
+  reactStrictMode: true,
+  poweredByHeader: false,
+  experimental: {} // must be empty or removed entirely
 };
 
-export default nextConfig;
+module.exports = nextConfig;
