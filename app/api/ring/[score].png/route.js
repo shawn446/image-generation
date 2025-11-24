@@ -1,34 +1,24 @@
 import fs from "fs";
 import path from "path";
 import satori from "satori";
-import { Resvg, initWasm } from "@resvg/resvg-wasm";
+import { Resvg } from "@resvg/resvg-js";
 
-export const runtime = "nodejs";  // required for WASM
+export const runtime = "nodejs";
 
-// Load WASM once
-let wasmReady = false;
+// Load WASM
+const wasmPath = path.join(process.cwd(), "public/resvg.wasm");
+const wasmData = fs.readFileSync(wasmPath);
 
-async function loadWasm() {
-  if (!wasmReady) {
-    const wasmPath = path.join(process.cwd(), "public/resvg.wasm");
-    const wasmBytes = fs.readFileSync(wasmPath);
-    await initWasm(wasmBytes);
-    wasmReady = true;
-  }
-}
-
-// Load font once
+// Load font
 const fontPath = path.join(process.cwd(), "app/fonts/Inter-Regular.ttf");
 const fontData = fs.readFileSync(fontPath);
 
 export async function GET(req, { params }) {
-  await loadWasm();
+  // 🔥 IMPORTANT: remove ".png" from dynamic segment
+  const rawScore = params.score.replace(".png", "");
+  const score = Number(rawScore) || 0;
 
-  // Handle score and remove accidental .png suffix
-  const raw = params.score.replace(".png", "");
-  const score = Number(raw) || 0;
-
-  // SVG via Satori
+  // Create SVG ring using Satori
   const svg = await satori(
     {
       type: "div",
@@ -59,7 +49,7 @@ export async function GET(req, { params }) {
                     stroke: "#e5e5e5",
                     strokeWidth: 12,
                     fill: "none",
-                  }
+                  },
                 },
                 {
                   type: "circle",
@@ -73,10 +63,10 @@ export async function GET(req, { params }) {
                     strokeDasharray: `${(score / 100) * 339} 339`,
                     transform: "rotate(-90 60 60)",
                     strokeLinecap: "round",
-                  }
-                }
-              ]
-            }
+                  },
+                },
+              ],
+            },
           },
           {
             type: "div",
@@ -84,14 +74,15 @@ export async function GET(req, { params }) {
               style: {
                 position: "absolute",
                 fontSize: 48,
-                fontWeight: "700",
+                fontWeight: 700,
                 color: "#000",
+                fontFamily: "Inter",
               },
               children: String(score),
-            }
-          }
-        ]
-      }
+            },
+          },
+        ],
+      },
     },
     {
       width: 300,
@@ -102,20 +93,22 @@ export async function GET(req, { params }) {
           data: fontData,
           weight: 400,
           style: "normal",
-        }
-      ]
+        },
+      ],
     }
   );
 
-  // Convert SVG → PNG
-  const png = new Resvg(svg, { fitTo: { mode: "width", value: 300 } })
-    .render()
-    .asPng();
+  // Convert to PNG
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: "width", value: 300 },
+  });
+
+  const png = resvg.render().asPng();
 
   return new Response(png, {
     headers: {
       "Content-Type": "image/png",
-      "Cache-Control": "public, max-age=31536000, immutable"
-    }
+      "Cache-Control": "public, max-age=31536000, immutable",
+    },
   });
 }
