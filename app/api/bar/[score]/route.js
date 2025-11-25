@@ -23,8 +23,9 @@ export async function GET(req, { params }) {
 
   const { start, end } = getGradientColors(score);
   
-  const width = 300;
-  const height = 10;
+  // Generate at 2x for crisp rendering
+  const width = 600;
+  const height = 16;
   const barWidth = (score / 100) * width;
 
   const svg = await satori(
@@ -37,7 +38,7 @@ export async function GET(req, { params }) {
           display: "flex",
           position: "relative",
           background: "#e5e7eb",
-          borderRadius: "5px",
+          borderRadius: "8px",
         },
         children: [
           {
@@ -47,7 +48,7 @@ export async function GET(req, { params }) {
                 width: `${barWidth}px`,
                 height: `${height}px`,
                 background: `linear-gradient(90deg, ${start}, ${end})`,
-                borderRadius: "5px",
+                borderRadius: "8px",
               },
             },
           },
