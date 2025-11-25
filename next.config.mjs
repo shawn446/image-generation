@@ -2,7 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  serverExternalPackages: ['@resvg/resvg-js'],
+  experimental: {
+    serverComponentsExternalPackages: ['@resvg/resvg-js'],
+  },
   async rewrites() {
     return [
       {
