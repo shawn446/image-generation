@@ -14,9 +14,9 @@ const fontData = fs.readFileSync(fontPath);
 
 // Color thresholds: red 0-50, yellow 51-69, green 70+
 const getGradientColors = (score) => {
-  if (score >= 70) return { start: "#00cc66", end: "#00ff88" }; // green
-  if (score >= 51) return { start: "#ff9900", end: "#ffcc00" }; // yellow
-  return { start: "#cc0000", end: "#ff4444" }; // red
+  if (score >= 70) return { start: "#00D68F", end: "#7FFF4A" }; // vibrant green → lime
+  if (score >= 51) return { start: "#FFAA55", end: "#C8E946" }; // peach → yellow-green
+  return { start: "#FF5F7E", end: "#FF6B47" }; // coral pink → orange-red
 };
 
 export async function GET(req, { params }) {
