@@ -39,7 +39,7 @@ export async function GET(req, { params }) {
           display: "flex",
           position: "relative",
           background: "#e5e7eb",
-          borderRadius: "6px",
+          borderRadius: "12px",
         },
         children: [
           {
@@ -49,7 +49,7 @@ export async function GET(req, { params }) {
                 width: `${barWidth}px`,
                 height: `${height}px`,
                 background: `linear-gradient(90deg, ${start}, ${end})`,
-                borderRadius: "6px",
+                borderRadius: "12px",
               },
             },
           },
