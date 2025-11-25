@@ -12,20 +12,28 @@ export const runtime = "nodejs";
 const fontPath = path.join(process.cwd(), "app/fonts/Inter-Regular.ttf");
 const fontData = fs.readFileSync(fontPath);
 
-export async function GET(req, { params }) {
-  // score comes from /api/ring/[score]
-  // rewrite also lets /api/ring/80.png work → we strip ".png" just in case
-  const raw = String(params.score || "").replace(".png", "");
-  const score = Number(raw) || 0;
+// Color thresholds: red 0-50, yellow 51-69, green 70+
+const getGradientColors = (score) => {
+  if (score >= 70) return { start: "#00cc66", end: "#00ff88" }; // green
+  if (score >= 51) return { start: "#ff9900", end: "#ffcc00" }; // yellow
+  return { start: "#cc0000", end: "#ff4444" }; // red
+};
 
-  // SVG layout using Satori
+export async function GET(req, { params }) {
+  const raw = String(params.score || "").replace(".png", "");
+  const score = Math.min(100, Math.max(0, Number(raw) || 0)); // clamp 0-100
+
+  const { start, end } = getGradientColors(score);
+  const circumference = 2 * Math.PI * 54; // ~339
+  const strokeDasharray = `${(score / 100) * circumference} ${circumference}`;
+
   const svg = await satori(
     {
       type: "div",
       props: {
         style: {
-          width: "300px",
-          height: "300px",
+          width: "600px",
+          height: "600px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -36,10 +44,39 @@ export async function GET(req, { params }) {
           {
             type: "svg",
             props: {
-              width: 300,
-              height: 300,
+              width: 600,
+              height: 600,
               viewBox: "0 0 120 120",
               children: [
+                // Gradient definition
+                {
+                  type: "defs",
+                  props: {
+                    children: [
+                      {
+                        type: "linearGradient",
+                        props: {
+                          id: "ringGradient",
+                          x1: "0%",
+                          y1: "0%",
+                          x2: "100%",
+                          y2: "100%",
+                          children: [
+                            {
+                              type: "stop",
+                              props: { offset: "0%", stopColor: start },
+                            },
+                            {
+                              type: "stop",
+                              props: { offset: "100%", stopColor: end },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                // Background track
                 {
                   type: "circle",
                   props: {
@@ -51,16 +88,17 @@ export async function GET(req, { params }) {
                     fill: "none",
                   },
                 },
+                // Progress ring with gradient
                 {
                   type: "circle",
                   props: {
                     cx: 60,
                     cy: 60,
                     r: 54,
-                    stroke: "#00cc66",
+                    stroke: "url(#ringGradient)",
                     strokeWidth: 12,
                     fill: "none",
-                    strokeDasharray: `${(score / 100) * 339} 339`,
+                    strokeDasharray: strokeDasharray,
                     transform: "rotate(-90 60 60)",
                     strokeLinecap: "round",
                   },
@@ -68,13 +106,14 @@ export async function GET(req, { params }) {
               ],
             },
           },
+          // Score text
           {
             type: "div",
             props: {
               style: {
                 position: "absolute",
-                fontSize: 48,
-                fontWeight: 700,
+                fontSize: 96,
+                fontWeight: 400,
                 color: "#000",
                 fontFamily: "Inter",
               },
@@ -85,8 +124,8 @@ export async function GET(req, { params }) {
       },
     },
     {
-      width: 300,
-      height: 300,
+      width: 600,
+      height: 600,
       fonts: [
         {
           name: "Inter",
@@ -97,11 +136,9 @@ export async function GET(req, { params }) {
     }
   );
 
-  // Render SVG → PNG with resvg-js (no wasmBinary, no init)
   const renderer = new Resvg(svg, {
-    fitTo: { mode: "width", value: 300 },
+    fitTo: { mode: "width", value: 600 },
   });
-
   const png = renderer.render().asPng();
 
   return new Response(png, {
