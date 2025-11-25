@@ -1,8 +1,6 @@
 import fs from "fs";
 import path from "path";
 import satori from "satori";
-import { Resvg } from "@resvg/resvg-js";
-
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
@@ -18,16 +16,14 @@ const getGradientColors = (score) => {
 };
 
 export async function GET(req, { params }) {
-  const raw = String(params.score || "").replace(".png", "");
+  const raw = String(params.score || "").replace(".svg", "").replace(".png", "");
   const score = Math.min(100, Math.max(0, Number(raw) || 0));
-
   const { start, end } = getGradientColors(score);
   
-  // 2x resolution for crisp rendering, thin bar
-  const width = 400;
-  const height = 20;
+  const width = 200;
+  const height = 14;
   const barWidth = (score / 100) * width;
-
+  
   const svg = await satori(
     {
       type: "div",
@@ -67,15 +63,10 @@ export async function GET(req, { params }) {
       ],
     }
   );
-
-  const renderer = new Resvg(svg, {
-    fitTo: { mode: "width", value: width },
-  });
-  const png = renderer.render().asPng();
-
-  return new Response(png, {
+  
+  return new Response(svg, {
     headers: {
-      "Content-Type": "image/png",
+      "Content-Type": "image/svg+xml",
       "Cache-Control": "public, max-age=31536000, immutable",
     },
   });
